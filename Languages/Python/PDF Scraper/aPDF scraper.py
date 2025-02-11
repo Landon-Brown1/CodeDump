@@ -4,13 +4,13 @@
 # ██╔═══╝   ╚██╔╝     ██║   ██╔══██║██║   ██║██║╚██╗██║    ██╔═══╝ ██║  ██║██╔══╝      ╚════██║██║     ██╔══██╗██╔══██║██╔═══╝ ██╔══╝  ██╔══██╗
 # ██║        ██║      ██║   ██║  ██║╚██████╔╝██║ ╚████║    ██║     ██████╔╝██║         ███████║╚██████╗██║  ██║██║  ██║██║     ███████╗██║  ██║
 # ╚═╝        ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═╝     ╚═════╝ ╚═╝         ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
-# / Created: 05-2024 / Last Updated: 12-2024 / Author: L. Brown                                                                                                                                           
+# / Created: 05-2024 / Last Updated: 02-2025 / Author: L. Brown                                                                                                                                           
 # 
 # DISCLAIMER: This is the first time I have written in Python, and I am by no means fluent. Bear with me. :)
 #
-#   !!!THIS PROGRAM IS CURRENTLY HARDCODED FOR CAREISMATIC INC INVOICES. IT WILL -NOT- WORK FOR OTHER PDFs UNLESS COORDINATES on lines 54-59 ARE MODIFIED ACCORDINGLY!!!
-#   Update coordinates by uncommenting the code at line 46, and commenting out lines 52-78. This will make the program instead create an XML file from all PDFs it reads. 
-#   Use the XML file to find the coordinates of the data you want, then use the code on line 50 to create a new dataframe.
+#   !!!THIS PROGRAM IS CURRENTLY HARDCODED FOR CAREISMATIC INC INVOICES. IT WILL -NOT- WORK FOR OTHER PDFs UNLESS COORDINATES ARE MODIFIED ACCORDINGLY!!!
+#   Update coordinates by uncommenting the pdf.tree.write function, and commenting out the code that overwrites all the data. This will make the program instead create an XML 
+#   file from all PDFs it reads. Use the XML file to find the coordinates of the data you want, then use those in the LTTextLineHorizontal bounding boxes to create a new dataframe.
 #
 #   3 STEPS TO USE THIS CODE:
 #
@@ -31,11 +31,41 @@ from os import listdir
 from os.path import isfile, join
 import shutil
 
+''''''
+# Function to grab your file paths from one library file
+def load_paths(file_path):
+    paths = {}
+
+    try:
+        # Open the file and read line by line
+        with open(file_path, 'r') as file:
+            for line in file:
+                # Ignore empty and commented lines
+                if line.strip() and not line.startswith('#'):
+                    # Split the line into key and value, separated by '='
+                    key, value = line.strip().split('=', 1)
+                    paths[key] = value
+
+    except FileNotFoundError:
+        print(f"Error: file {file_path} does not exist.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    
+    return paths
+''''''
+# Start by getting file paths from library
+file_paths = load_paths('lib/local.txt')
+
+# Access paths dynamically using keys
+master_path = file_paths.get('MASTER', 'default_path_1.csv')  # added a default in case no key is there
+list_path = file_paths.get('LIST', 'default_path_2.csv')
+res_path = file_paths.get('RES', 'default_path_3')
+
 #overwrites the previous Careismatic_Invoices_List.csv if it exists and reset it to the master file. this keeps from appending values if you rerun the same invoices by accident.
-shutil.copy('C:/Users/Missy/Documents/PDFs/Careismatic_Invoices/Master.csv', 'C:/Users/Missy/Documents/PDFs/Careismatic_Invoices/Careismatic_Invoices_List.csv')
+shutil.copy(master_path, list_path)
 
 #this is the path that all NEW Careismatic Invoices are saved to from Outlook using VBA "SaveAttachmentsToDisk" Macro (res folder)
-myPath = 'C:/Users/Missy/Documents/PDFs/Careismatic_Invoices/res'
+myPath = res_path
 
 #this creates a new list of all the pdf's that are in the res folder.
 # *this will check for ALL Invoices left in 'res', so be sure everything you don't want is out of that folder (i.e. last month's invoices).*
@@ -83,15 +113,8 @@ for file in allFiles:
                                 'TOTAL COST': [total_due]})
 
     #appends (the 'a' denotes 'append') the above DataFrame to a .CSV (comma separated value) file that we can open and view in Excel
-    with open('C:/Users/Missy/Documents/PDFs/Careismatic_Invoices/Careismatic_Invoices_List.csv', 'a') as f:
+    with open(list_path, 'a') as f:
         outDataFrame.to_csv(f, header=False)
-
-#added the last run date of the spreadsheet to the end -->[BROKEN, the INVOICE and INVOICE DATE here would have to be a DataFrame object like inv_num or inv_date :(]
-#DATEaFrame = pd.DataFrame({'INVOICE#': "Updated:", 
-#                           'INVOICE DATE': date.today()})
-#
-#with open('C:/Users/Missy/Documents/PDFs/Careismatic_Invoices/Careismatic_Invoices_List.csv', 'a') as f:
-#        DATEaFrame.to_csv(f, header=False)
 
 #when you see this in your output window, the code is finished running
 print('DONE!')

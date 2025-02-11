@@ -1,0 +1,3 @@
+MASTER=C:/Users/JohnDoe/Path/To/File/Master.csv
+LIST=C:/Users/JohnDoe/Path/To/File/Careismatic_Invoices_List.csv
+RES=C:/Users/JohnDoe/Path/To/Folder/res
