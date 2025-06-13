@@ -143,8 +143,12 @@ int main() {
     readyText.setString("Ready?");
     auto bounds = readyText.getGlobalBounds();
     readyText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 50.0f));
-    bool waitingToStart = false;
+    bool waitingToStart = true;
     Clock waitClock;
+    
+    scoreText.setString(std::to_string(leftScore) + " : " + std::to_string(rightScore));
+    bounds = scoreText.getGlobalBounds();
+    scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
     
     while (window.isOpen()) {
         while (auto eventOpt = window.pollEvent()) {
@@ -163,12 +167,29 @@ int main() {
         // if (Keyboard::isKeyPressed(Keyboard::Key::Down))
         //     rightPaddle.moveDown();
         
-        // Move ball
+        // Start ball
         if (waitingToStart) {
-            // Draw "Ready?" and wait
+            bool fadingIn = true;
+            if(fadingIn){
+                float duration = 1.0f;
+                // Fade in "Ready?" and wait
+                float t = waitClock.getElapsedTime().asSeconds();
+                int alpha = static_cast<int>(std::min(255.0f, 255.0f * (t / duration)));
+                readyText.setFillColor(sf::Color(255, 255, 255, alpha));
+
+                if (t >= duration){
+                    fadingIn = false;
+                }
+            }
+            if(waitClock.getElapsedTime().asSeconds() >= 2.5f){
+                readyText.setScale(Vector2f(1.5,1.5));
+                readyText.setString("BEGIN!");
+            }
             if (waitClock.getElapsedTime().asSeconds() >= 3.0f) {
                 waitingToStart = false;
                 readyText.setFillColor(Color::Black);
+                readyText.setScale(Vector2f(1,1));
+                readyText.setString("Ready?");
                 ball.start(); // now it starts moving
             }
         } else {
@@ -199,7 +220,6 @@ int main() {
             auto bounds = scoreText.getGlobalBounds();
             scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
             // Start next round
-            readyText.setFillColor(Color::White);
             waitingToStart = true;
             waitClock.restart();
         }
@@ -211,7 +231,6 @@ int main() {
             auto bounds = scoreText.getGlobalBounds();
             scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
             // Start next round
-            readyText.setFillColor(Color::White);
             waitingToStart = true;
             waitClock.restart();
         }
