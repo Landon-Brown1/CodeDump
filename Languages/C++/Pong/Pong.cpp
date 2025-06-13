@@ -3,6 +3,7 @@
 #include <SFML/System.hpp>
 #include <math.h>
 #include <iostream>
+#include <unistd.h>
 
 
 const int windowWidth = 800;
@@ -59,8 +60,18 @@ public:
     }
 
     void reset() {
-        shape.setPosition(Vector2f(windowWidth / 2, windowHeight / 2));
-        speedX = -speedX;
+        shape.setPosition(Vector2f(windowWidth / 2, windowHeight / 2)); // set ball to middle court
+        speedX = speedY = 0; // stop it from moving
+    }
+
+    void start() {
+        
+        sleep(3);
+        speedX = rand() % 5 + 2;    // random starting angle every round
+        speedY = ballSpeed - speedX;
+        if (rand() % 2 >= 1)        // sometimes shoot left, sometimes right
+            speedX *= -1;
+        
     }
 
     void update(const Paddle& left, const Paddle& right) {
@@ -97,10 +108,23 @@ public:
     }
 };
 
+struct Board {
+    void draw_game(RenderWindow& w, Paddle lp, Paddle rp, Ball b, Text st, Text rt){
+        w.clear();
+        w.draw(lp.shape);
+        w.draw(rp.shape);
+        w.draw(st);
+        w.draw(rt);
+        w.draw(b.shape);
+        w.display();
+    }
+};
+
 int main() {
     RenderWindow window(VideoMode(Vector2u(windowWidth, windowHeight)), "Pong");
     window.setFramerateLimit(60);
 
+    Board b;
     Paddle leftPaddle(20,true);
     Paddle rightPaddle(windowWidth - 30,false);
     Ball ball;
@@ -118,8 +142,13 @@ int main() {
     
     int leftScore = 0, rightScore = 0;
     Text scoreText(font, "", 30);
+    Text readyText(font, "", 30);
     scoreText.setFillColor(Color::White);
-
+    readyText.setFillColor(Color::Black);
+    readyText.setString("Ready?");
+    auto bounds = readyText.getGlobalBounds();
+    readyText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 50.0f));
+    
     while (window.isOpen()) {
         while (auto eventOpt = window.pollEvent()) {
             Event event = *eventOpt;
@@ -157,24 +186,32 @@ int main() {
         if (ball.shape.getPosition().x < 0) {
             rightScore++;
             ball.reset();
+            // Update score text
+            scoreText.setString(std::to_string(leftScore) + " : " + std::to_string(rightScore));
+            auto bounds = scoreText.getGlobalBounds();
+            scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
+            // Start next round
+            readyText.setFillColor(Color::White);
+            b.draw_game(window, leftPaddle, rightPaddle, ball, scoreText, readyText);
+            ball.start();
+            readyText.setFillColor(Color::Black);
         }
         if (ball.shape.getPosition().x > windowWidth) {
             leftScore++;
             ball.reset();
+            // Update score text
+            scoreText.setString(std::to_string(leftScore) + " : " + std::to_string(rightScore));
+            auto bounds = scoreText.getGlobalBounds();
+            scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
+            // Start next round
+            readyText.setFillColor(Color::White);
+            b.draw_game(window, leftPaddle, rightPaddle, ball, scoreText, readyText);
+            ball.start();
+            readyText.setFillColor(Color::Black);
         }
 
-        // Update score text
-        scoreText.setString(std::to_string(leftScore) + " : " + std::to_string(rightScore));
-        auto bounds = scoreText.getGlobalBounds();
-        scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
-
         // Render
-        window.clear();
-        window.draw(leftPaddle.shape);
-        window.draw(rightPaddle.shape);
-        window.draw(ball.shape);
-        window.draw(scoreText);
-        window.display();
+        b.draw_game(window, leftPaddle, rightPaddle, ball, scoreText, readyText);
     }
 
     return 0;
