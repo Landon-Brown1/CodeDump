@@ -3,8 +3,6 @@
 #include <SFML/System.hpp>
 #include <math.h>
 #include <iostream>
-#include <unistd.h>
-
 
 const int windowWidth = 800;
 const int windowHeight = 600;
@@ -65,13 +63,10 @@ public:
     }
 
     void start() {
-        
-        sleep(3);
         speedX = rand() % 5 + 2;    // random starting angle every round
         speedY = ballSpeed - speedX;
         if (rand() % 2 >= 1)        // sometimes shoot left, sometimes right
             speedX *= -1;
-        
     }
 
     void update(const Paddle& left, const Paddle& right) {
@@ -148,6 +143,8 @@ int main() {
     readyText.setString("Ready?");
     auto bounds = readyText.getGlobalBounds();
     readyText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 50.0f));
+    bool waitingToStart = false;
+    Clock waitClock;
     
     while (window.isOpen()) {
         while (auto eventOpt = window.pollEvent()) {
@@ -167,12 +164,23 @@ int main() {
         //     rightPaddle.moveDown();
         
         // Move ball
-        ball.move();
-        ball.update(leftPaddle, rightPaddle);
-        ball.checkCollision(leftPaddle);
-        ball.checkCollision(rightPaddle);
+        if (waitingToStart) {
+            // Draw "Ready?" and wait
+            if (waitClock.getElapsedTime().asSeconds() >= 3.0f) {
+                waitingToStart = false;
+                readyText.setFillColor(Color::Black);
+                ball.start(); // now it starts moving
+            }
+        } else {
+            // Normal gameplay
+            ball.move();
+            ball.update(leftPaddle, rightPaddle);
+            ball.checkCollision(leftPaddle);
+            ball.checkCollision(rightPaddle);
+        }
+        
 
-        // AI
+        // Computer player
         aiCenterY = rightPaddle.getCenter().y;
         ballY = ball.getCenter().y;
         if (std::abs(ballY - aiCenterY) > 5) {
@@ -192,9 +200,8 @@ int main() {
             scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
             // Start next round
             readyText.setFillColor(Color::White);
-            b.draw_game(window, leftPaddle, rightPaddle, ball, scoreText, readyText);
-            ball.start();
-            readyText.setFillColor(Color::Black);
+            waitingToStart = true;
+            waitClock.restart();
         }
         if (ball.shape.getPosition().x > windowWidth) {
             leftScore++;
@@ -205,9 +212,8 @@ int main() {
             scoreText.setPosition(Vector2f(windowWidth / 2.f - bounds.size.x / 2.f, 10.f));
             // Start next round
             readyText.setFillColor(Color::White);
-            b.draw_game(window, leftPaddle, rightPaddle, ball, scoreText, readyText);
-            ball.start();
-            readyText.setFillColor(Color::Black);
+            waitingToStart = true;
+            waitClock.restart();
         }
 
         // Render
