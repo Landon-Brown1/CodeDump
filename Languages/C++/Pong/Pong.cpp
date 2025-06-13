@@ -3,6 +3,7 @@
 #include <SFML/System.hpp>
 #include <math.h>
 #include <iostream>
+#include <iomanip>
 
 const int windowWidth = 800;
 const int windowHeight = 600;
@@ -44,6 +45,8 @@ public:
     bool justBounced = false;
     short timeSinceBounce = 0;
     float ballSpeed = 5.0f; // Constant speed
+    float speedIncrement = 0.2f;
+    float maxBallSpeed = 12.0f;
 
     Ball() {
         shape.setRadius(10);
@@ -59,7 +62,8 @@ public:
 
     void reset() {
         shape.setPosition(Vector2f(windowWidth / 2, windowHeight / 2)); // set ball to middle court
-        speedX = speedY = 0; // stop it from moving
+        speedX = speedY = 0;    // stop it from moving
+        ballSpeed = 5.0f;       // reset the speed constant
     }
 
     void start() {
@@ -86,19 +90,22 @@ public:
 
     void checkCollision(Paddle& paddle) {
         if (!justBounced && shape.getGlobalBounds().findIntersection(paddle.shape.getGlobalBounds())) {
-            std::cout << "before SpeedX: " << speedX << ", SpeedY: " << speedY << "\n";
+
+            ballSpeed = std::min(ballSpeed + speedIncrement, maxBallSpeed); // speeding up the ball over time
+
             float relativeIntersect = getCenter().y - paddle.getCenter().y;
             float normalized = std::max(-1.0f, std::min(1.0f, relativeIntersect / 50.0f));
             float maxBounceAngle = 75.0f * (3.141592f / 180.0f);
             float bounceAngle = normalized * maxBounceAngle;
 
-            speedX = ballSpeed * (paddle.side ? 1.0f : -1.0f) * cos(bounceAngle);
+            speedX = ballSpeed * (paddle.side ? 1.0f : -1.0f) * cos(bounceAngle);    
             speedY = ballSpeed * sin(bounceAngle);
 
             justBounced = true;
             timeSinceBounce = 0;
             std::cout << "Bounce angle: " << bounceAngle << "\n";
-            std::cout << "after SpeedX: " << speedX << ", SpeedY: " << speedY << "\n";
+            std::cout << std::fixed << std::setprecision(2);
+            std::cout << "SpeedX: " << speedX << ", SpeedY: " << speedY << "\n";
         }
     }
 };
