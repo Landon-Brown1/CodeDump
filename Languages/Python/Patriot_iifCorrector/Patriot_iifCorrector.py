@@ -25,7 +25,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 # Load names, file locations, accounts from config.json file
-with open('config.json', 'r') as config_file:
+with open('..\\config.json', 'r') as config_file:
     config = json.load(config_file)
 
 name_map = config['employee_name_map']
