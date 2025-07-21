@@ -7,7 +7,7 @@ Real world problems need real world solutions; I am just trying to provide them 
 
 ## Repository Structure
 
-Landon-Brown1/
+Python/
 - ├─ FeeCalculator/ # GUI-based fee calculator
 - ├─ PDF Scraper/ # Script to extract invoice data from PDFs
 - ├─ iifCorrector/ # format corrector for .iif import to Quickbooks
