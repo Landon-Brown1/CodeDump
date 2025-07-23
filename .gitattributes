@@ -1,2 +1,3 @@
 *.tex linguist-vendored
 *.toc linguist-generated
+**/build/** linguist-generated
