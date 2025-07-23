@@ -1,5 +1,5 @@
 *.tex linguist-vendored
-Languages/Python/PDFScraper/lib/pdfquery-0.4.3/** linguist-vendored
+Languages/Python/PDFScraper/lib/** linguist-vendored
 *.toc linguist-generated
 **/build/** linguist-generated
 
