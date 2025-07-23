@@ -1,4 +1,4 @@
-# Welcome to my humble corner.
+# Welcome to my learning corner.
 
 | Environment      | Location                                                                                    |
 |:----------------:|:-------------------------------------------------------------------------------------------:|
