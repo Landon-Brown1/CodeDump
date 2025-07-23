@@ -1,5 +1,4 @@
 *.tex linguist-vendored
 *.toc linguist-generated
 **/build/** linguist-generated
-Languages/Python/PDF\ Scraper/lib/pdfquery-0.4.3/** linguist-vendored
-"Languages/Python/PDF Scraper/lib/pdfquery-0.4.3/**" linguist-vendored
+Languages/Python/*/lib/pdfquery-0.4.3/** linguist-vendored
