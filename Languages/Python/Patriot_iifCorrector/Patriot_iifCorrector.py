@@ -5,15 +5,15 @@
 # ██║     ██║  ██║   ██║   ██║  ██║╚██████╔╝███████╗███████╗    ██╗██║██║██║         ╚██████╗╚██████╔╝██║  ██║██║  ██║███████╗╚██████╗   ██║   ╚██████╔╝██║  ██║
 # ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝╚═╝╚═╝╚═╝          ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
 #                                                                                                                                           
-# / Created: 07-2025 / Last Updated: 07-2025 / Author: L. Brown                                                                                                                                           
+# / Created: 07-2025 / Last Updated: 09-2025 / Author: L. Brown                                                                                                                                           
 # 
 #   3 STEPS TO USE THIS CODE:
 #
 #       1. =SETUP=      Make sure your "iif_folder_path" (saved in "config.json") contains the iif file you want to clean (ex. ExportSummary-xxxxxxxx.iif). 
-#                           -NOTE: You can get this from Patriot by going to Payroll > Export Payroll.
+#                           -NOTE: You can get this from Patriot by going to Payroll > Export Payroll, then moving the file from Downloads to the iif folder.
 #       2. =WORK=       Run the code by executing the following program once.
 #                           -NOTE: You will be prompted with a confirmation dialogue before any changes are made. 
-#       3. =CLEANUP=    archive section tbd
+#       3. =CLEANUP=    archive section placeholder
 #
 
 import os
@@ -24,13 +24,14 @@ import json
 import tkinter as tk
 from tkinter import messagebox
 
-# Load names, file locations, accounts from config.json file. Update path accordingly.
-with open('config.json', 'r') as config_file:
-    config = json.load(config_file)
 
-name_map = config['employee_name_map']
-memo_account_map = config['memo_account_map']
-folder_path = config['iif_folder_path']
+###############################################################
+# Load Config values
+def load_config():
+    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    with open(config_path, 'r') as f:
+        return json.load(f)
+###############################################################
 
 ###############################################################
 # Function to match names to QB Employee List names
@@ -127,12 +128,18 @@ def show_start_dialog():
     root = tk.Tk()
     root.withdraw()
     response = messagebox.askokcancel(
-        "LB's Payroll Export Format-inator v0.1",
+        "LB's Payroll Export Format-inator v0.2",
         f"You are about to reformat the most recently saved .iif file in {folder_path}. "
         "Do you want to continue?"
     )
     return response
 ###############################################################
+
+# Load names, file locations, accounts from config.json file.
+config = load_config()
+name_map = config['employee_name_map']
+memo_account_map = config['memo_account_map']
+folder_path = config['iif_folder_path']
 
 # Main execution
 if __name__ == "__main__":
