@@ -1,2 +1,8 @@
 # Do not commit local config
 config.json
+__pycache__/
+*.spec
+*.pyc
+build/
+dist/
+Patriot_iifCorrector.exe
