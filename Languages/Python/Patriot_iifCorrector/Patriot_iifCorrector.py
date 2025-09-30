@@ -18,17 +18,30 @@
 
 import os
 import re
+import sys
 import glob
 import csv
 import json
 import tkinter as tk
 from tkinter import messagebox
 
+###############################################################
+# Load Config values
+def resource_path(relative_path):
+    # Get absolute path to resource
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+###############################################################
 
 ###############################################################
 # Load Config values
 def load_config():
-    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    config_path = resource_path('config.json')
     with open(config_path, 'r') as f:
         return json.load(f)
 ###############################################################
