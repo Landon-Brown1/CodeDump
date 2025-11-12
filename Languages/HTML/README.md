@@ -1,4 +1,4 @@
-# Javascript
+# HTML
 
 HTML section for site code.
 
